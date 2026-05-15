@@ -5,11 +5,14 @@ import API from "@/services/api";
 
 export default function AuthBox() {
 
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] =
+    useState(true);
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] =
+    useState("");
 
-  const [password, setPassword] = useState("");
+  const [password, setPassword] =
+    useState("");
 
   const handleSubmit = async () => {
 
@@ -38,11 +41,15 @@ export default function AuthBox() {
 
         alert("Login Successful!");
 
+        window.location.reload();
+
       } else {
 
         alert("Signup Successful!");
 
         setIsLogin(true);
+
+        window.location.reload();
       }
 
     } catch (error) {
@@ -59,7 +66,9 @@ export default function AuthBox() {
 
       <h1 className="text-5xl font-bold text-white text-center mb-8">
 
-        {isLogin ? "Login" : "Create Account"}
+        {isLogin
+          ? "Login"
+          : "Create Account"}
 
       </h1>
 
@@ -88,7 +97,9 @@ export default function AuthBox() {
         className="w-full bg-blue-600 hover:bg-blue-700 transition p-4 rounded-xl text-white font-bold text-xl"
       >
 
-        {isLogin ? "Login" : "Sign Up"}
+        {isLogin
+          ? "Login"
+          : "Sign Up"}
 
       </button>
 
@@ -105,7 +116,9 @@ export default function AuthBox() {
           className="text-blue-400 ml-2"
         >
 
-          {isLogin ? "Sign Up" : "Login"}
+          {isLogin
+            ? "Sign Up"
+            : "Login"}
 
         </button>
 
