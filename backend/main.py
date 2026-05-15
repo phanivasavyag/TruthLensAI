@@ -57,6 +57,7 @@ async def upload_file(
     file_path = f"uploads/{file.filename}"
 
     with open(file_path, "wb") as buffer:
+
         shutil.copyfileobj(
             file.file,
             buffer
@@ -74,7 +75,7 @@ async def upload_file(
     # Image dimensions
     (h, w) = image.shape[:2]
 
-    # Face detection blob
+    # Create blob for face detection
     blob = cv2.dnn.blobFromImage(
         cv2.resize(image, (300, 300)),
         1.0,
@@ -114,7 +115,7 @@ async def upload_file(
                 endY
             ) = box.astype("int")
 
-            # Draw rectangle
+            # Draw face rectangle
             cv2.rectangle(
                 image,
                 (startX, startY),
@@ -153,7 +154,7 @@ async def upload_file(
         predict_deepfake(file_path)
     )
 
-    # FULL PUBLIC IMAGE URL
+    # Public image URL
     image_url = (
         "https://truthlens-backend-kk4z.onrender.com/"
         f"uploads/{analyzed_filename}"
@@ -162,21 +163,18 @@ async def upload_file(
     # Final API Response
     return {
 
-        "filename":
-        file.filename,
+        "filename": file.filename,
 
-        "faces_detected":
-        face_count,
+        "faces_detected": face_count,
 
-        "prediction":
-        prediction,
+        "prediction": prediction,
 
-        "confidence":
-        confidence,
+        "confidence": confidence,
 
-        "blur_score":
-        round(blur_score, 2),
+        "blur_score": round(
+            blur_score,
+            2
+        ),
 
-        "image":
-        image_url
+        "image_url": image_url
     }
