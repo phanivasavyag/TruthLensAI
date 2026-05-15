@@ -1,20 +1,23 @@
 import os
+import shutil
+import cv2
+
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import shutil
-import cv2
-
 from deepfake_model import predict_deepfake
 from auth import router as auth_router
+
+# Create uploads folder automatically
 os.makedirs("uploads", exist_ok=True)
+
 app = FastAPI()
 
-# Include Authentication Routes
+# Authentication Routes
 app.include_router(auth_router)
 
-# Static uploads folder
+# Serve uploaded images
 app.mount(
     "/uploads",
     StaticFiles(directory="uploads"),
@@ -30,7 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load DNN Face Detector
+# Load Face Detection Model
 net = cv2.dnn.readNetFromCaffe(
     "models/deploy.prototxt",
     "models/res10_300x300_ssd_iter_140000.caffemodel"
@@ -44,23 +47,34 @@ def home():
         "message": "TruthLens AI Backend Running"
     }
 
-# Upload Route
+# Upload + Analyze Route
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...)
+):
 
     # Save uploaded file
     file_path = f"uploads/{file.filename}"
 
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        shutil.copyfileobj(
+            file.file,
+            buffer
+        )
 
     # Read image
     image = cv2.imread(file_path)
 
+    if image is None:
+
+        return {
+            "error": "Image not readable"
+        }
+
     # Image dimensions
     (h, w) = image.shape[:2]
 
-    # Create blob
+    # Face detection blob
     blob = cv2.dnn.blobFromImage(
         cv2.resize(image, (300, 300)),
         1.0,
@@ -75,24 +89,30 @@ async def upload_file(file: UploadFile = File(...)):
 
     face_count = 0
 
-    # Loop through detections
-    for i in range(0, detections.shape[2]):
+    # Loop detections
+    for i in range(
+        detections.shape[2]
+    ):
 
-        confidence_score = detections[0, 0, i, 2]
+        confidence_score = (
+            detections[0, 0, i, 2]
+        )
 
         if confidence_score > 0.5:
 
             face_count += 1
 
-            # Face box coordinates
-            box = detections[0, 0, i, 3:7] * [
-                w,
-                h,
-                w,
-                h
-            ]
+            box = (
+                detections[0, 0, i, 3:7]
+                * [w, h, w, h]
+            )
 
-            (startX, startY, endX, endY) = box.astype("int")
+            (
+                startX,
+                startY,
+                endX,
+                endY
+            ) = box.astype("int")
 
             # Draw rectangle
             cv2.rectangle(
@@ -100,11 +120,17 @@ async def upload_file(file: UploadFile = File(...)):
                 (startX, startY),
                 (endX, endY),
                 (0, 255, 0),
-                2
+                3
             )
 
     # Save analyzed image
-    analyzed_path = f"uploads/analyzed_{file.filename}"
+    analyzed_filename = (
+        f"analyzed_{file.filename}"
+    )
+
+    analyzed_path = (
+        f"uploads/{analyzed_filename}"
+    )
 
     cv2.imwrite(
         analyzed_path,
@@ -122,27 +148,35 @@ async def upload_file(file: UploadFile = File(...)):
         cv2.CV_64F
     ).var()
 
-    # CNN Deepfake Prediction
-    prediction, confidence = predict_deepfake(
-        file_path
+    # AI Prediction
+    prediction, confidence = (
+        predict_deepfake(file_path)
     )
 
-    # API Response
+    # FULL PUBLIC IMAGE URL
+    image_url = (
+        "https://truthlens-backend-kk4z.onrender.com/"
+        f"uploads/{analyzed_filename}"
+    )
+
+    # Final API Response
     return {
 
-        "filename": file.filename,
+        "filename":
+        file.filename,
 
-        "faces_detected": face_count,
+        "faces_detected":
+        face_count,
 
-        "prediction": prediction,
+        "prediction":
+        prediction,
 
-        "confidence": confidence,
+        "confidence":
+        confidence,
 
-        "blur_score": round(
-            blur_score,
-            2
-        ),
+        "blur_score":
+        round(blur_score, 2),
 
-        "image_url":
-        f"http://127.0.0.1:8000/uploads/analyzed_{file.filename}"
+        "image":
+        image_url
     }
