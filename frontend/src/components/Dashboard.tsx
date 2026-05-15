@@ -284,13 +284,13 @@ export default function Dashboard() {
                     ></div>
 
                     <img
-                      src={result.image}
+                      src={result.image_url}
                       alt="Analyzed Result"
                       onError={(e) => {
 
                         console.log(
                           "IMAGE FAILED:",
-                          result.image
+                          result.image_url
                         );
 
                         e.currentTarget.src =
