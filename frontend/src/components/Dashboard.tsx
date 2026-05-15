@@ -22,7 +22,7 @@ export default function Dashboard() {
     try {
 
       const response = await API.post(
-        "/analyze",
+        "/upload",
         formData,
         {
           headers: {
@@ -31,6 +31,8 @@ export default function Dashboard() {
           },
         }
       );
+
+      console.log(response.data);
 
       setResult(response.data);
 
@@ -46,23 +48,34 @@ export default function Dashboard() {
 
     <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#07152d] to-[#0f172a] text-white px-6 py-16 flex flex-col items-center">
 
-      <div className="text-center mb-14">
+      {/* HERO */}
 
-        <h1 className="text-7xl font-black tracking-tight">
+      <div className="text-center mb-16">
 
-          TruthLens <span className="text-blue-500">AI</span>
+        <h1 className="text-7xl md:text-8xl font-black tracking-tight">
+
+          TruthLens{" "}
+
+          <span className="text-blue-500">
+
+            AI
+
+          </span>
 
         </h1>
 
-        <p className="text-gray-400 text-xl mt-5 max-w-3xl">
+        <p className="text-gray-400 text-xl mt-6 max-w-3xl">
 
-          AI-powered deepfake detection platform using
-          computer vision, forensic analysis, and
-          advanced image intelligence.
+          AI-powered deepfake detection platform
+          using computer vision, forensic analysis,
+          OpenCV face detection, and intelligent
+          media verification.
 
         </p>
 
       </div>
+
+      {/* UPLOAD CARD */}
 
       <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-[35px] p-10 w-full max-w-2xl shadow-[0_0_60px_rgba(0,0,0,0.5)]">
 
@@ -93,31 +106,45 @@ export default function Dashboard() {
 
       </div>
 
+      {/* RESULT SECTION */}
+
       {result && (
 
-        <div className="mt-14 w-full max-w-7xl">
+        <div className="mt-16 w-full max-w-7xl">
 
           <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.5)] p-12">
 
-            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-green-500/10 blur-[120px] rounded-full"></div>
+            {/* GLOW EFFECTS */}
 
-            <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-blue-500/10 blur-[100px] rounded-full"></div>
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-blue-500/10 blur-[120px] rounded-full"></div>
+
+            <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-purple-500/10 blur-[100px] rounded-full"></div>
 
             <div className="relative z-10">
 
+              {/* PREDICTION */}
+
               <div className="flex items-center justify-center gap-5 mb-12">
 
-                <div className={`w-6 h-6 rounded-full animate-pulse ${
-                  result.prediction === "LIKELY REAL"
-                    ? "bg-green-400"
-                    : "bg-red-400"
-                }`}></div>
+                <div
+                  className={`w-6 h-6 rounded-full animate-pulse ${
+                    result.prediction ===
+                    "LIKELY REAL"
+                      ? "bg-green-400"
+                      : "bg-orange-400"
+                  }`}
+                ></div>
 
-                <h1 className={`text-7xl font-black tracking-tight drop-shadow-2xl ${
-                  result.prediction === "LIKELY REAL"
-                    ? "text-green-400"
-                    : "text-red-400"
-                }`}>
+                <h1
+                  className={`text-6xl md:text-7xl font-black tracking-tight text-center ${
+                    result.prediction ===
+                    "LIKELY REAL"
+                      ? "text-green-400"
+                      : "text-orange-400"
+                  }`}
+                >
+
+                  Prediction:{" "}
 
                   {result.prediction}
 
@@ -125,9 +152,15 @@ export default function Dashboard() {
 
               </div>
 
+              {/* CONTENT */}
+
               <div className="grid lg:grid-cols-2 gap-16 items-center">
 
+                {/* LEFT SIDE */}
+
                 <div>
+
+                  {/* CONFIDENCE */}
 
                   <div className="mb-10">
 
@@ -151,9 +184,10 @@ export default function Dashboard() {
 
                       <div
                         className={`h-full rounded-full shadow-[0_0_30px_rgba(255,255,255,0.5)] ${
-                          result.prediction === "LIKELY REAL"
+                          result.prediction ===
+                          "LIKELY REAL"
                             ? "bg-gradient-to-r from-green-400 via-emerald-500 to-green-600"
-                            : "bg-gradient-to-r from-red-400 via-pink-500 to-red-600"
+                            : "bg-gradient-to-r from-orange-400 via-red-500 to-orange-600"
                         }`}
                         style={{
                           width: `${result.confidence}%`,
@@ -163,6 +197,8 @@ export default function Dashboard() {
                     </div>
 
                   </div>
+
+                  {/* METRICS */}
 
                   <div className="grid grid-cols-2 gap-6">
 
@@ -192,13 +228,15 @@ export default function Dashboard() {
 
                       <h2 className="text-5xl font-black text-white mt-3">
 
-                        {Math.round(result.blur_score)}
+                        {result.blur_score}
 
                       </h2>
 
                     </div>
 
                   </div>
+
+                  {/* STATUS */}
 
                   <div className="grid grid-cols-2 gap-5 mt-8">
 
@@ -230,21 +268,36 @@ export default function Dashboard() {
 
                 </div>
 
+                {/* RIGHT SIDE IMAGE */}
+
                 <div className="flex justify-center">
 
                   <div className="relative">
 
-                    <div className={`absolute inset-0 blur-3xl rounded-[40px] ${
-                      result.prediction === "LIKELY REAL"
-                        ? "bg-green-500/20"
-                        : "bg-red-500/20"
-                    }`}></div>
+                    <div
+                      className={`absolute inset-0 blur-3xl rounded-[40px] ${
+                        result.prediction ===
+                        "LIKELY REAL"
+                          ? "bg-green-500/20"
+                          : "bg-orange-500/20"
+                      }`}
+                    ></div>
 
                     <img
-  src={`https://truthlens-backend-kk4z.onrender.com/${result.image}`}
-  alt="Analyzed"
-  className="relative rounded-[35px] border border-white/10 shadow-2xl w-full max-w-[500px]"
-/>
+                      src={result.image}
+                      alt="Analyzed Result"
+                      onError={(e) => {
+
+                        console.log(
+                          "IMAGE FAILED:",
+                          result.image
+                        );
+
+                        e.currentTarget.src =
+                          "https://placehold.co/600x400/png?text=Image+Not+Found";
+                      }}
+                      className="relative rounded-[35px] border border-white/10 shadow-2xl w-full max-w-[500px] object-cover"
+                    />
 
                   </div>
 
