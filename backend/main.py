@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +8,7 @@ import cv2
 
 from deepfake_model import predict_deepfake
 from auth import router as auth_router
-
+os.makedirs("uploads", exist_ok=True)
 app = FastAPI()
 
 # Include Authentication Routes
